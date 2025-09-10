@@ -40,7 +40,7 @@ Not sure how to SSH?
 
 **Option 1: One-line install with cron (Recommended)**
 ```bash
-wget https://raw.githubusercontent.com/noosphere888/Ban-Knots/main/standalone-ban-knots.sh && \
+wget https://github.com/noosphere888/Ban-Knots/releases/download/v1.0.0/standalone-ban-knots.sh && \
 chmod +x standalone-ban-knots.sh && \
 ./standalone-ban-knots.sh -u yourrpcuser -P yourrpcpass --install-cron
 ```
@@ -65,9 +65,9 @@ That's it! The script will now run every 10 minutes automatically.
 
 1. Download the script:
 ```bash
-wget https://raw.githubusercontent.com/noosphere888/Ban-Knots/main/standalone-ban-knots.sh
+wget https://github.com/noosphere888/Ban-Knots/releases/download/v1.0.0/standalone-ban-knots.sh
 # or
-curl -O https://raw.githubusercontent.com/noosphere888/Ban-Knots/main/standalone-ban-knots.sh
+curl -LO https://github.com/noosphere888/Ban-Knots/releases/download/v1.0.0/standalone-ban-knots.sh
 ```
 
 2. Make it executable:

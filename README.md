@@ -59,6 +59,13 @@ EOF
 ./standalone-ban-knots.sh -c ~/.bitcoin/ban-knots.conf --install-cron
 ```
 
+**Option 3: One-line install with cron on Umbrel**
+```bash
+wget https://github.com/noosphere888/Ban-Knots/releases/download/v1.0.0/standalone-ban-knots.sh && \
+chmod +x standalone-ban-knots.sh && \
+./standalone-ban-knots.sh -u yourrpcuser -P yourrpcpass --umbrel --install-cron
+```
+
 That's it! The script will now run every 10 minutes automatically.
 
 ## Full Installation Steps
@@ -105,6 +112,13 @@ sudo yum install jq
 ### Cron Installation (Automatic)
 
 ```bash
+# Ensure you have crontab installed
+sudo apt-get update
+sudo apt-get install cron
+sudo systemctl enable cron
+sudo systemctl start cron
+systemctl status cron
+
 # Install with default 10-minute interval
 ./standalone-ban-knots.sh -u user -P pass --install-cron
 
@@ -150,6 +164,7 @@ tail -f /tmp/ban-knots.log
 - `--install-cron` - Install as cron job (runs every 10 minutes)
 - `--uninstall-cron` - Remove cron job
 - `--cron-interval MIN` - Set cron interval in minutes (default: 10)
+- `--umbrel` - Enable Umbrel compatibility
 - `-H, --help` - Show help message
 
 ## Configuration File Format

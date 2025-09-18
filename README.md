@@ -41,17 +41,18 @@ Not sure how to SSH?
 **Option 1: Automatic with cookie auth (Simplest)**
 ```bash
 # Bitcoin Core automatically detects .cookie file
-wget https://github.com/noosphere888/Ban-Knots/releases/download/v1.0.0/standalone-ban-knots.sh && \
+wget https://github.com/noosphere888/Ban-Knots/releases/download/v1.1.0/standalone-ban-knots.sh && \
 chmod +x standalone-ban-knots.sh && \
 ./standalone-ban-knots.sh --install-cron
 ```
 
 **Option 2: Manual credentials**
 ```bash
-wget https://github.com/noosphere888/Ban-Knots/releases/download/v1.0.0/standalone-ban-knots.sh && \
+wget https://github.com/noosphere888/Ban-Knots/releases/download/v1.1.0/standalone-ban-knots.sh && \
 chmod +x standalone-ban-knots.sh && \
 ./standalone-ban-knots.sh -u yourrpcuser -P yourrpcpass --install-cron
 ```
+*Start9 users: This is your option. Get credentials from Services → Bitcoin Core → Config → RPC Settings*
 
 **Option 3: Using a config file**
 ```bash
@@ -69,57 +70,20 @@ EOF
 
 **Option 4: One-line install on Umbrel**
 ```bash
-wget https://github.com/noosphere888/Ban-Knots/releases/download/v1.0.0/standalone-ban-knots.sh && \
+wget https://github.com/noosphere888/Ban-Knots/releases/download/v1.1.0/standalone-ban-knots.sh && \
 chmod +x standalone-ban-knots.sh && \
 ./standalone-ban-knots.sh -u yourrpcuser -P yourrpcpass --umbrel --install-cron
 ```
 
 That's it! The script will now run every 10 minutes automatically.
 
-## Start9-Specific Instructions
-
-Start9 runs Bitcoin Core in a podman container. The script automatically detects this and handles it for you.
-
-1. **Enable SSH Access**:
-   - Go to System → SSH → Add New Key
-   - Add your SSH public key
-   - SSH into your node: `ssh start9@[NODE-NAME].local`
-
-2. **Get RPC Credentials**:
-   - Open Start9 web interface
-   - Navigate to: Services → Bitcoin Core → Config → RPC Settings
-   - Copy your RPC username and password
-
-3. **Test Connection** (optional):
-   ```bash
-   # Check if you can see your peers
-   sudo podman exec -it bitcoind.embassy bitcoin-cli getpeerinfo
-   ```
-
-4. **Run the Script**:
-   ```bash
-   ./standalone-ban-knots.sh -u <your-rpc-username> -P <your-rpc-password>
-   ```
-   The script will automatically detect Start9 and use podman to execute commands.
-
-5. **Set Up Automation**:
-   ```bash
-   # Create config file with your credentials
-   mkdir -p ~/.bitcoin
-   echo "rpc_user=<your-username>" > ~/.bitcoin/ban-knots.conf
-   echo "rpc_password=<your-password>" >> ~/.bitcoin/ban-knots.conf
-   
-   # Install cron job
-   ./standalone-ban-knots.sh -c ~/.bitcoin/ban-knots.conf --install-cron
-   ```
-
 ## Full Installation Steps
 
 1. Download the script:
 ```bash
-wget https://github.com/noosphere888/Ban-Knots/releases/download/v1.0.0/standalone-ban-knots.sh
+wget https://github.com/noosphere888/Ban-Knots/releases/download/v1.1.0/standalone-ban-knots.sh
 # or
-curl -LO https://github.com/noosphere888/Ban-Knots/releases/download/v1.0.0/standalone-ban-knots.sh
+curl -LO https://github.com/noosphere888/Ban-Knots/releases/download/v1.1.0/standalone-ban-knots.sh
 ```
 
 2. Make it executable:
@@ -299,6 +263,54 @@ sudo systemctl start ban-knots.timer
    - Extracts the base IP address
    - Disconnects the node
    - Optionally bans the IP address
+
+## Platform-Specific Guides
+
+### Start9 Detailed Setup
+
+Start9 runs Bitcoin Core in a podman container. The script automatically detects this and handles it for you.
+
+1. **Enable SSH Access**:
+   - Go to System → SSH → Add New Key
+   - Add your SSH public key
+   - SSH into your node: `ssh start9@[NODE-NAME].local`
+
+2. **Get RPC Credentials**:
+   - Open Start9 web interface
+   - Navigate to: Services → Bitcoin Core → Config → RPC Settings
+   - Copy your RPC username and password
+
+3. **Test Connection** (optional):
+   ```bash
+   # Check if you can see your peers
+   sudo podman exec -it bitcoind.embassy bitcoin-cli getpeerinfo
+   ```
+
+4. **Download and Run the Script**:
+   ```bash
+   # Download the script
+   wget https://github.com/noosphere888/Ban-Knots/releases/download/v1.1.0/standalone-ban-knots.sh
+   chmod +x standalone-ban-knots.sh
+   
+   # Run with your credentials
+   ./standalone-ban-knots.sh -u <your-rpc-username> -P <your-rpc-password>
+   ```
+   The script will automatically detect Start9 and use podman to execute commands.
+
+5. **Set Up Automation**:
+   ```bash
+   # Create config file with your credentials
+   mkdir -p ~/.bitcoin
+   echo "rpc_user=<your-username>" > ~/.bitcoin/ban-knots.conf
+   echo "rpc_password=<your-password>" >> ~/.bitcoin/ban-knots.conf
+   
+   # Install cron job
+   ./standalone-ban-knots.sh -c ~/.bitcoin/ban-knots.conf --install-cron
+   ```
+
+### Umbrel Notes
+
+Umbrel users should use the `--umbrel` flag to ensure proper Docker container execution. The script will automatically handle the container communication.
 
 ## Troubleshooting
 

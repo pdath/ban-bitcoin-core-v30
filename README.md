@@ -38,9 +38,9 @@ Not sure how to SSH?
 
 ## Quick Start (Plug & Play)
 
-**Option 1: Automatic with cookie auth (Simplest)**
+**Option 1: Automatic detection (Simplest)**
 ```bash
-# Bitcoin Core automatically detects .cookie file
+# Automatically detects .cookie or bitcoin.conf file
 wget https://github.com/noosphere888/Ban-Knots/releases/download/v1.1.0/standalone-ban-knots.sh && \
 chmod +x standalone-ban-knots.sh && \
 ./standalone-ban-knots.sh --install-cron
@@ -54,9 +54,10 @@ chmod +x standalone-ban-knots.sh && \
 ```
 *Start9 users: This is your option. Get credentials from Services → Bitcoin Core → Config → RPC Settings*
 
-**Option 3: Using a config file**
+**Option 3: Custom config file (Usually not needed)**
 ```bash
-# Create config file
+# Only needed if auto-detection fails or you need custom settings
+# The script already reads your bitcoin.conf automatically
 cat > ~/.bitcoin/ban-knots.conf << EOF
 rpc_user=yourrpcuser
 rpc_password=yourrpcpass
@@ -70,6 +71,7 @@ EOF
 
 **Option 4: One-line install on Umbrel**
 ```bash
+# Use manual credentials with --umbrel flag
 wget https://github.com/noosphere888/Ban-Knots/releases/download/v1.1.0/standalone-ban-knots.sh && \
 chmod +x standalone-ban-knots.sh && \
 ./standalone-ban-knots.sh -u yourrpcuser -P yourrpcpass --umbrel --install-cron

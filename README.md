@@ -272,6 +272,8 @@ sudo systemctl start ban-knots.timer
 
 Start9 runs Bitcoin Core in a podman container. The script automatically detects this and handles it for you.
 
+**Warning**: Start9 has a read-only filesystem. The script and cron job will be removed after system updates or restarts. You'll need to reinstall after each Start9 update. For a permanent solution, consider running the scirpt from an external system that conencts to your Start9 node.
+
 1. **Enable SSH Access**:
    - Go to System → SSH → Add New Key
    - Add your SSH public key
@@ -327,6 +329,17 @@ Umbrel users should use the `--umbrel` flag to ensure proper Docker container ex
 - **Permission denied**: Use `sudo` when running the script if needed
 - **Container not found**: Verify Bitcoin Core is running: `sudo podman ps | grep bitcoin`
 - **Test manually**: `sudo podman exec -it bitcoind.embassy bitcoin-cli getpeerinfo | grep -i knots`
+- **Script disappears after restart/update**: Start9 has a read-only filesystem. Need to reinstall after each update/restart or run from an external system:
+   ```bash
+   # From external machine with Tor installed
+   ./standalone-ban-knots.sh \
+      -h YOUR_START9_TOR_ADDRESS.onion \
+      -p 8332 \
+      -u YOUR_RPC_USERNAME \
+      -P YOUR_RPC_PASSWORD \
+      --install-cron
+   ```
+   Get your Tor address from: Servicees -> Bitcoin Core -> Interfaces -> Tor
 
 ### jq: command not found
 Install jq using your package manager (see Installation section)

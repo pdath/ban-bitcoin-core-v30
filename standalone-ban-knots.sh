@@ -16,6 +16,8 @@ CONFIG_FILE=""
 CRON_INTERVAL=10  # minutes
 INSTALL_CRON=false
 UNINSTALL_CRON=false
+IS_UMBREL_NODE=false
+UMBREL_SHIM="docker exec bitcoin_app_1"
 
 # Function to display usage
 usage() {
@@ -34,6 +36,7 @@ Options:
     --install-cron           Install as cron job (runs every 10 minutes)
     --uninstall-cron         Remove cron job
     --cron-interval MIN      Set cron interval in minutes (default: 10)
+    --umbrel                 Enable Umbrel compatibility
     -H, --help               Show this help message
 
 Config file format (one per line):
@@ -64,7 +67,7 @@ read_config() {
                 rpc_host) RPC_HOST="$value" ;;
                 rpc_port) RPC_PORT="$value" ;;
                 rpc_user) RPC_USER="$value" ;;
-                rpc_password) RPC_PASSWORD="$value" ;;
+                rpc_password) RPC_PASSWORD="$(grep "rpc_password" "$config_file" | cut -d '=' -f 2-)" ;;
                 ban_duration) BAN_DURATION="$value" ;;
                 disconnect_only) DISCONNECT_ONLY="$value" ;;
             esac
@@ -123,6 +126,10 @@ while [[ $# -gt 0 ]]; do
             CRON_INTERVAL="$2"
             shift 2
             ;;
+        --umbrel)
+            IS_UMBREL_NODE=true
+            shift
+            ;;
         -H|--help)
             usage
             ;;
@@ -159,6 +166,11 @@ if [[ "$INSTALL_CRON" == "true" ]]; then
         [[ "$RPC_PORT" != "8332" ]] && CRON_CMD="$CRON_CMD -p $RPC_PORT"
     fi
     
+    # Propagate Umbrel mode, if needed
+    if [[ "$IS_UMBREL_NODE" == "true" ]]; then
+        CRON_CMD="$CRON_CMD --umbrel"
+    fi
+    
     # Add logging
     CRON_CMD="$CRON_CMD >> /tmp/ban-knots.log 2>&1"
     
@@ -192,7 +204,11 @@ fi
 
 # Function to execute bitcoin-cli commands
 bitcoin_cli() {
-    bitcoin-cli \
+    BTC_CLI_CMD="bitcoin-cli"
+    if [[ "$IS_UMBREL_NODE" == "true" ]]; then
+        BTC_CLI_CMD="${UMBREL_SHIM} ${BTC_CLI_CMD}"
+    fi
+    $BTC_CLI_CMD \
         -rpcconnect="$RPC_HOST" \
         -rpcport="$RPC_PORT" \
         -rpcuser="$RPC_USER" \

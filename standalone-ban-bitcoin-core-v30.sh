@@ -1,13 +1,12 @@
 #!/bin/bash
 
-# Bitcoin Core Knots Node Ban Script v1.2.0
-# This script identifies and bans/disconnects Bitcoin Knots nodes
-# Works with any Bitcoin Core node with RPC enabled
+# Bitcoin Core v30 Node Ban Script v1.2.0
+# This script identifies and bans/disconnects Bitcoin Core v30 nodes
+# Works with any knots or Bitcoin Core node with RPC enabled
 # 
 # Detection methods:
 # 1. User agent matching (default)
-# 2. Service flag 26 detection (enhanced mode)
-# 3. Historical IP banlist (enhanced mode)
+# 2. Historical IP banlist (enhanced mode)
 
 # Default values
 RPC_HOST="127.0.0.1"
@@ -24,8 +23,8 @@ UNINSTALL_CRON=false
 COOKIE_PATH=""
 ENHANCED_MODE=true  # Enable service flag detection by default
 USE_EXTERNAL_BANLIST=false  # Don't download external list by default (privacy)
-BANLIST_URL="https://raw.githubusercontent.com/aeonBTC/Knots-Banlist/main/knownknots.txt"
-BANLIST_FILE="$HOME/.bitcoin/knots-banlist.txt"
+BANLIST_URL=""
+BANLIST_FILE="$HOME/.bitcoin/bitcoin-core-v30-banlist.txt"
 DEFAULT_COOKIE_PATHS=(
     "$HOME/.bitcoin/.cookie"
     "$HOME/Library/Application Support/Bitcoin/.cookie"
@@ -90,9 +89,9 @@ Config file format (one per line):
 
 Example:
     $0 -u myuser -P mypassword
-    $0 -c ~/.bitcoin/ban-knots.conf
+    $0 -c ~/.bitcoin/ban-botcoin-core-v30.conf
     $0 -h 192.168.1.100 -u user -P pass --dry-run
-    $0 -c ~/.bitcoin/ban-knots.conf --install-cron
+    $0 -c ~/.bitcoin/ban-botcoin-core-v30.conf --install-cron
     $0 --uninstall-cron
 
 EOF
@@ -249,8 +248,8 @@ done
 
 # Handle cron operations
 if [[ "$UNINSTALL_CRON" == "true" ]]; then
-    echo "Removing ban-knots from crontab..."
-    crontab -l 2>/dev/null | grep -v "standalone-ban-knots.sh" | crontab -
+    echo "Removing ban-botcoin-core-v30 from crontab..."
+    crontab -l 2>/dev/null | grep -v "standalone-ban-botcoin-core-v30.sh" | crontab -
     echo "Cron job removed successfully"
     exit 0
 fi
@@ -318,13 +317,13 @@ if [[ "$INSTALL_CRON" == "true" ]]; then
     fi
     
     # Add logging
-    CRON_CMD="$CRON_CMD >> /tmp/ban-knots.log 2>&1"
+    CRON_CMD="$CRON_CMD >> /tmp/ban-botcoin-core-v30.log 2>&1"
     
     # Install cron job
     echo "Installing cron job to run every $CRON_INTERVAL minutes..."
     
     # Remove existing entries to avoid duplicates
-    crontab -l 2>/dev/null | grep -v "standalone-ban-knots.sh" > /tmp/cron_temp
+    crontab -l 2>/dev/null | grep -v "standalone-ban-botcoin-core-v30.sh" > /tmp/cron_temp
     
     # Add new entry
     echo "*/$CRON_INTERVAL * * * * $CRON_CMD" >> /tmp/cron_temp
@@ -335,7 +334,7 @@ if [[ "$INSTALL_CRON" == "true" ]]; then
     
     echo "Cron job installed successfully!"
     echo "Command: $CRON_CMD"
-    echo "Check logs at: /tmp/ban-knots.log"
+    echo "Check logs at: /tmp/ban-botcoin-core-v30.log"
     echo ""
     echo "To view cron jobs: crontab -l"
     echo "To remove cron job: $0 --uninstall-cron"
@@ -355,9 +354,9 @@ if [[ "$IS_START9" == "true" && -z "$RPC_USER" && -z "$RPC_PASSWORD" ]]; then
     echo "4. Run this script with: $0 -u <username> -P <password>"
     echo ""
     echo "For automatic operation, create a config file:"
-    echo "  echo 'rpc_user=<your-username>' > ~/.bitcoin/ban-knots.conf"
-    echo "  echo 'rpc_password=<your-password>' >> ~/.bitcoin/ban-knots.conf"
-    echo "  $0 -c ~/.bitcoin/ban-knots.conf --install-cron"
+    echo "  echo 'rpc_user=<your-username>' > ~/.bitcoin/ban-botcoin-core-v30.conf"
+    echo "  echo 'rpc_password=<your-password>' >> ~/.bitcoin/ban-botcoin-core-v30.conf"
+    echo "  $0 -c ~/.bitcoin/ban-botcoin-core-v30.conf --install-cron"
     echo ""
     exit 1
 fi
@@ -450,7 +449,7 @@ has_service_flag() {
 # Update IP banlist from upstream and merge with local discoveries
 update_banlist() {
     local need_update=false
-    local temp_file="/tmp/knots-upstream-$$.txt"
+    local temp_file="/tmp/bitcoin-core-v30-upstream-$$.txt"
     
     # Create directory if needed
     local banlist_dir=$(dirname "$BANLIST_FILE")
@@ -474,7 +473,7 @@ update_banlist() {
     fi
     
     if [[ "$need_update" == true ]]; then
-        echo "Updating Knots IP banlist from upstream..."
+        echo "Updating Bitcoin Core v30 IP banlist from upstream..."
         if curl -s "$BANLIST_URL" -o "$temp_file" 2>/dev/null || wget -q "$BANLIST_URL" -O "$temp_file" 2>/dev/null; then
             # Merge upstream with existing local discoveries
             if [[ -f "$BANLIST_FILE" ]]; then
@@ -502,7 +501,7 @@ is_banned_ip() {
     [[ -f "$BANLIST_FILE" ]] && grep -q "^${ip}$" "$BANLIST_FILE"
 }
 
-# Add newly discovered Knots IP to banlist
+# Add newly discovered Bitcoin Core v30 IP to banlist
 add_to_banlist() {
     local ip=$1
     local detection_method=$2
@@ -519,7 +518,7 @@ add_to_banlist() {
     fi
 }
 
-echo "=== Bitcoin Knots Node Ban Script v1.2.0 ==="
+echo "=== Bitcoin Core v30 Node Ban Script v1.2.0 ==="
 if [[ "$IS_START9" == "true" ]]; then
     echo "Platform: Start9 (using podman container)"
 elif [[ "$IS_UMBREL" == "true" ]]; then
@@ -559,17 +558,17 @@ fi
 
 # Statistics
 TOTAL_PEERS=$(echo "$PEERS_JSON" | jq 'length')
-KNOTS_BY_UA=0
-KNOTS_BY_FLAG=0
-KNOTS_BY_IP=0
-HIDDEN_KNOTS=0
-TOTAL_KNOTS=0
+BITCOIN_CORE_V30_BY_UA=0
+BITCOIN_CORE_V30_BY_FLAG=0
+BITCOIN_CORE_V30_BY_IP=0
+HIDDEN_BITCOIN_CORE_V30=0
+TOTAL_BITCOIN_CORE_V30=0
 
 echo "Total peers: $TOTAL_PEERS"
 echo ""
 
-# Detect Knots nodes using all methods
-KNOTS_NODES=""
+# Detect Bitcoin Core v30 nodes using all methods
+BITCOIN_CORE_V30_NODES=""
 
 while IFS= read -r peer; do
     addr=$(echo "$peer" | jq -r '.addr')
@@ -589,76 +588,60 @@ while IFS= read -r peer; do
         base_addr="$addr"
     fi
     
-    is_knots=false
+    is_bitcoin_core_v30=false
     detection_methods=""
     
     # Method 1: User agent detection
-    if echo "$subver" | grep -qiE "(knots|bitcoinknots)"; then
-        is_knots=true
+    if echo "$subver" | grep -qiE "Satoshi\:30"; then
+        is_bitcoin_core_v30=true
         detection_methods="User-Agent"
-        ((KNOTS_BY_UA++))
+        ((BITCOIN_CORE_V30_BY_UA++))
     fi
     
     # Enhanced detection methods
     if [[ "$ENHANCED_MODE" == true ]]; then
-        # Method 2: Service flag 26 detection
-        if [[ -n "$services" ]] && has_service_flag "$services" 26; then
-            is_knots=true
-            [[ -n "$detection_methods" ]] && detection_methods="${detection_methods}+ServiceFlag-26" || detection_methods="ServiceFlag-26"
-            ((KNOTS_BY_FLAG++))
-            
-            # Check if it's a hidden node
-            if ! echo "$subver" | grep -qiE "(knots|bitcoinknots)"; then
-                detection_methods="${detection_methods}+HIDDEN"
-                ((HIDDEN_KNOTS++))
-            fi
-        fi
-        
-        # Method 3: IP banlist detection
+        # Method 2: IP banlist detection
         if is_banned_ip "$base_addr"; then
-            is_knots=true
+            is_bitcoin_core_v30=true
             [[ -n "$detection_methods" ]] && detection_methods="${detection_methods}+Known-IP" || detection_methods="Known-IP"
-            ((KNOTS_BY_IP++))
+            ((BITCOIN_CORE_V30_BY_IP++))
         fi
     fi
     
-    # Add to Knots nodes list if detected
-    if [[ "$is_knots" == true ]]; then
+    # Add to Bitcoin Core v30 nodes list if detected
+    if [[ "$is_bitcoin_core_v30" == true ]]; then
         node_json=$(jq -n --arg addr "$addr" --arg id "$id" --arg subver "$subver" --arg detect "$detection_methods" \
                    '{addr: $addr, id: $id, subver: $subver, detection: $detect}')
-        if [[ -z "$KNOTS_NODES" ]]; then
-            KNOTS_NODES="$node_json"
+        if [[ -z "$BITCOIN_CORE_V30_NODES" ]]; then
+            BITCOIN_CORE_V30_NODES="$node_json"
         else
-            KNOTS_NODES="${KNOTS_NODES}\n${node_json}"
+            BITCOIN_CORE_V30_NODES="${BITCOIN_CORE_V30_NODES}\n${node_json}"
         fi
-        ((TOTAL_KNOTS++))
+        ((TOTAL_BITCOIN_CORE_V30++))
     fi
 done < <(echo "$PEERS_JSON" | jq -c '.[]')
 
-if [[ -z "$KNOTS_NODES" ]]; then
-    echo "No Knots nodes found among current peers"
+if [[ -z "$BITCOIN_CORE_V30_NODES" ]]; then
+    echo "No Bitcoin Core v30 nodes found among current peers"
     if [[ "$ENHANCED_MODE" == true ]]; then
         echo ""
         echo "Detection summary:"
         echo "  Checked with user agent: $TOTAL_PEERS peers"
-        echo "  Checked with service flag 26: $TOTAL_PEERS peers"
         echo "  Checked against IP banlist: $(wc -l < "$BANLIST_FILE" 2>/dev/null || echo 0) IPs"
     fi
     exit 0
 fi
 
 # Summary
-echo "Found $TOTAL_KNOTS Knots node(s):"
+echo "Found $TOTAL_BITCOIN_CORE_V30 Bitcoin Core v30 node(s):"
 if [[ "$ENHANCED_MODE" == true ]]; then
-    echo "  By user agent: $KNOTS_BY_UA"
-    echo "  By service flag: $KNOTS_BY_FLAG"
-    echo "  By IP list: $KNOTS_BY_IP"
-    [[ $HIDDEN_KNOTS -gt 0 ]] && echo "  Hidden nodes: $HIDDEN_KNOTS (flag 26 but disguised UA)"
+    echo "  By user agent: $BITCOIN_CORE_V30_BY_UA"
+    echo "  By IP list: $BITCOIN_CORE_V30_BY_IP"
 fi
 echo ""
 
-# Process each Knots node
-echo -e "$KNOTS_NODES" | while IFS= read -r node_json; do
+# Process each Bitcoin Core v30 node
+echo -e "$BITCOIN_CORE_V30_NODES" | while IFS= read -r node_json; do
     [[ -z "$node_json" ]] && continue
     
     addr=$(echo "$node_json" | jq -r '.addr')
@@ -729,7 +712,7 @@ if [[ "$DISCONNECT_ONLY" == "false" && "$DRY_RUN" == "false" ]]; then
     # Show banlist info
     if [[ -f "$BANLIST_FILE" ]]; then
         BANLIST_COUNT=$(wc -l < "$BANLIST_FILE" | tr -d ' ')
-        echo "Knots IP banlist: $BANLIST_COUNT total IPs"
+        echo "Bitcoin Core v30 IP banlist: $BANLIST_COUNT total IPs"
         
         # Show recent discoveries if log exists
         if [[ -f "${BANLIST_FILE}.log" ]]; then
